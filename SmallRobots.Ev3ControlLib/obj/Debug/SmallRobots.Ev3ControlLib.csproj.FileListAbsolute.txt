@@ -1,0 +1,16 @@
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.pdb
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.pdb
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\bin\Debug\MonoBrickFirmware.dll
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.csprojResolveAssemblyReference.cache
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib - 4\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib - 4\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.pdb
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib - 4\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.csprojResolveAssemblyReference.cache
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib - 4\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\Software Robot non pubblicato\SmallRobots.Ev3ControlLib\SmallRobots.Ev3ControlLib - 4\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.pdb
+Z:\Progetti\SmallRobots\GitHub Repository\Ev3ControlLib\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\GitHub Repository\Ev3ControlLib\SmallRobots.Ev3ControlLib\bin\Debug\SmallRobots.Ev3ControlLib.pdb
+Z:\Progetti\SmallRobots\GitHub Repository\Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.csprojResolveAssemblyReference.cache
+Z:\Progetti\SmallRobots\GitHub Repository\Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.dll
+Z:\Progetti\SmallRobots\GitHub Repository\Ev3ControlLib\SmallRobots.Ev3ControlLib\obj\Debug\SmallRobots.Ev3ControlLib.pdb
