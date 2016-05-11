@@ -179,7 +179,7 @@ namespace SmallRobots.Ev3ControlLib
             }
             set
             {
-                if ((value <= 0) || (value > 1))
+                if ((value < 0) || (value > 1))
                 {
                     ArgumentException ex = new ArgumentException("The low pass filter constant must be between 0 and 1");
                     throw (ex);
@@ -228,12 +228,14 @@ namespace SmallRobots.Ev3ControlLib
         /// </summary>
         private void init()
         {
+            LcdConsole.WriteLine("PID Init...");
             Ki = 0;
             Kp = 0;
             Kd = 0;
             lowPassConstant = 0;
             ps = new PIDState();
             action = new Action<Robot>((Robot robot) => PIDAlgorithm(robot));
+            LcdConsole.WriteLine("PID Ok");
         }
     #endregion
 
@@ -265,6 +267,7 @@ namespace SmallRobots.Ev3ControlLib
 
             // updating error
             ps.Error = SetPoint - ps.FilteredProcessVariable;
+            // LcdConsole.WriteLine("Sp="+SetPoint.ToString() +" PV=" + ProcessVariableSignal.ToString() +" E=" + ps.Error.ToString());
 
             // computating delta_u and u
             ps.DeltaControlSignal = k1 * ps.Error + k2 * ps.ErrorK1 + k3 * ps.ErrorK2;
