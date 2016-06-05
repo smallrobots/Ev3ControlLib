@@ -48,5 +48,15 @@
       <FileName>Task.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="SmallRobots.Ev3ControlLib.Ev3TCPServer" Collapsed="true">
+    <Position X="0.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Ev3TCPServer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Robot" />
+    </ShowAsAssociation>
+  </Class>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

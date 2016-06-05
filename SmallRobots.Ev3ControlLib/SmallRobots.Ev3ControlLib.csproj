@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ev3TCPServer.cs" />
     <Compile Include="MainMenuItem.cs" />
     <Compile Include="PIDController.cs" />
     <Compile Include="TaskScheduler.cs" />

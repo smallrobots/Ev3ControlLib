@@ -24,6 +24,9 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                                           //
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Comment the following line when not performing unit test
+#define TEST
+
 using MonoBrickFirmware.Display;
 using System;
 using System.Threading;
@@ -228,14 +231,18 @@ namespace SmallRobots.Ev3ControlLib
         /// </summary>
         private void init()
         {
+#if !TEST
             LcdConsole.WriteLine("PID Init...");
+#endif
             Ki = 0;
             Kp = 0;
             Kd = 0;
             lowPassConstant = 0;
             ps = new PIDState();
             action = new Action<Robot>((Robot robot) => PIDAlgorithm(robot));
+#if !TEST
             LcdConsole.WriteLine("PID Ok");
+#endif
         }
     #endregion
 
