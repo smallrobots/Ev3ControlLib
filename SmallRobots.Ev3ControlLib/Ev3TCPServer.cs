@@ -28,18 +28,12 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
 
 namespace SmallRobots.Ev3ControlLib
 {
-    public interface IRemotizedRobot
-    {
-
-    }
-
     /// <summary>
     /// Enumeration of message senders type
     /// </summary>
@@ -133,7 +127,10 @@ namespace SmallRobots.Ev3ControlLib
 
     }
 
-    public class StateObject
+    /// <summa
+    /// Message state
+    /// </summary>
+    public class TCPMessageState
     {
         // Client  socket.
         public Socket workSocket = null;
@@ -213,11 +210,6 @@ namespace SmallRobots.Ev3ControlLib
                 }
             }
         } 
-
-        /// <summary>
-        /// Gets or sets the robor associated with this Ev3TCPServer
-        /// </summary>
-        public IRemotizedRobot Robot { get; set; }
         #endregion
 
         #region Constructors
@@ -315,9 +307,9 @@ namespace SmallRobots.Ev3ControlLib
             Socket handler = listener.EndAccept(ar);
 
             // Create the state object.
-            StateObject state = new StateObject();
+            TCPMessageState state = new TCPMessageState();
             state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+            handler.BeginReceive(state.buffer, 0, TCPMessageState.BufferSize, 0,
                 new AsyncCallback(ReadCallback), state);
         }
 
@@ -327,7 +319,7 @@ namespace SmallRobots.Ev3ControlLib
 
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
-            StateObject state = (StateObject)ar.AsyncState;
+            TCPMessageState state = (TCPMessageState)ar.AsyncState;
             Socket handler = state.workSocket;
 
             // Read data from the client socket. 
@@ -343,22 +335,22 @@ namespace SmallRobots.Ev3ControlLib
                 // more data.
                 content = state.sb.ToString();
                 LastMessage = content;
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the 
-                    // client. Display it on the console.
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                        content.Length, content);
-                    // Echo the data back to the client.
-                    // Send(handler, content);
-                    LastMessage = content;
-                }
-                else
-                {
-                    // Not all data received. Get more.
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-                }
+                //if (content.IndexOf("<EOF>") > -1)
+                //{
+                //    // All the data has been read from the 
+                //    // client. Display it on the console.
+                //    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+                //        content.Length, content);
+                //    // Echo the data back to the client.
+                //    // Send(handler, content);
+                //    LastMessage = content;
+                //}
+                //else
+                //{
+                //    // Not all data received. Get more.
+                //    handler.BeginReceive(state.buffer, 0, TCPMessageState.BufferSize, 0,
+                //    new AsyncCallback(ReadCallback), state);
+                //}
             }
         }
 
@@ -404,6 +396,9 @@ namespace SmallRobots.Ev3ControlLib
             serverThread.Start();
         }
 
+        /// <summary>
+        /// Stops the server
+        /// </summary>
         public void Stop()
         {
             // Stops the server

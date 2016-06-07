@@ -37,6 +37,15 @@ namespace Ev3ControLib_UnitTest
     [TestClass]
     public partial class Ev3TCPServer_UnitTest
     {
+        // Default Ethernet Address for testing
+        IPAddress localAddress;
+
+        [TestInitialize]
+        public void Ev3TCPServer_UnitTest_Initialization()
+        {
+            localAddress = new IPAddress(new byte[4] { 172, 16, 232, 134 });
+        }
+
         /// <summary>
         /// Default constructor test
         /// </summary>
@@ -108,8 +117,8 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_4()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
+            //IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
             
             // Starts the server and checks
             server.Start();
@@ -131,9 +140,9 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_5()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
-            IPEndPoint remoteEP = new IPEndPoint(ipTest, 11000);
+            // IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
 
             // Starts the server and checks
             server.Start();
@@ -272,9 +281,9 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_12()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
-            IPEndPoint remoteEP = new IPEndPoint(ipTest, 11000);
+            // IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
 
             // Starts the server and checks
             server.Start();
@@ -290,7 +299,6 @@ namespace Ev3ControLib_UnitTest
             RobotMessage sentMessage = new RobotMessage();
             sentMessage.Sender = Sender.FromClient;
             string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
-
             // Send the message
             int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
             Assert.AreNotEqual(0, bytesSent);
