@@ -46,7 +46,7 @@ namespace SmallRobots.Ev3ControlLib
         /// <summary>
         /// Gets or sets the embedded Ev3TCPServer
         /// </summary>
-        Ev3TCPServer Ev3TCPServer
+        protected Ev3TCPServer Ev3TCPServer
         {
             get
             {
@@ -125,6 +125,10 @@ namespace SmallRobots.Ev3ControlLib
             {
                 ev3TCPServer = new Ev3TCPServer();
             }
+
+            // Subscribe the PropertyChanged Evenet
+            Ev3TCPServer.PropertyChanged += Ev3TCPServer_PropertyChanged;
+
         }
         #endregion
 
@@ -145,6 +149,25 @@ namespace SmallRobots.Ev3ControlLib
         {
             // Starts the server
             Ev3TCPServer.Stop();
+        }
+        #endregion
+
+        #region Protected methods
+        protected void Ev3TCPServer_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName=="LastMessage")
+            {
+                // Call the relative handler
+                ProcessLastReceivedMessage();
+            }
+        }
+
+        /// <summary>
+        /// Processes the last received message
+        /// </summary>
+        protected virtual void ProcessLastReceivedMessage()
+        {
+
         }
         #endregion
     }

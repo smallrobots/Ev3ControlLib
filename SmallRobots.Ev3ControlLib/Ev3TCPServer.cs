@@ -25,6 +25,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -145,7 +146,7 @@ namespace SmallRobots.Ev3ControlLib
     /// <summary>
     /// Class that implements a TCP Asynchronous Socket Server
     /// </summary>
-    public partial class Ev3TCPServer
+    public partial class Ev3TCPServer : INotifyPropertyChanged
     {
         #region Fields
         ManualResetEvent allDone = new ManualResetEvent(false);
@@ -154,6 +155,11 @@ namespace SmallRobots.Ev3ControlLib
         /// Server Thread
         /// </summary>
         Thread serverThread;
+
+        /// <summary>
+        /// Last client to call this server
+        /// </summary>
+        Socket lastCallerClient;
 
         /// <summary>
         /// True when the server stop request has been issued
@@ -169,11 +175,38 @@ namespace SmallRobots.Ev3ControlLib
         /// Server IP Address
         /// </summary>
         IPAddress ipAddress;
+
+        /// <summary>
+        /// Last received message
+        /// </summary>
+        string lastMessage;
+
+        /// <summary>
+        /// The server socket
+        /// </summary>
+        Socket serverSocket;
         #endregion
 
         #region Properties
-
-        public string LastMessage { get; set; }
+        /// <summary>
+        /// Gets or protected sets the last message received from this
+        /// server
+        /// </summary>
+        public string LastMessage
+        {
+            get
+            {
+                return lastMessage;
+            }
+            protected set
+            {
+                if (lastMessage != value)
+                {
+                    lastMessage = value;
+                    RaisePropertyChanged("LastMessage");
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the server ip address
@@ -256,13 +289,13 @@ namespace SmallRobots.Ev3ControlLib
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress, 11000);
 
             // Create a TCP/IP socket.
-            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.
             try
             {
-                listener.Bind(localEndPoint);
-                listener.Listen(100);
+                serverSocket.Bind(localEndPoint);
+                serverSocket.Listen(100);
 
                 // Server started
                 IsRunning = true;
@@ -274,20 +307,20 @@ namespace SmallRobots.Ev3ControlLib
 
                     // Start an asynchronous socket to listen for connections.
                     Console.WriteLine("Waiting for a connection...");
-                    listener.BeginAccept(
+                    serverSocket.BeginAccept(
                         new AsyncCallback(AcceptCallback),
-                        listener);
+                        serverSocket);
 
                     // Wait until a connection is made before continuing.
                     allDone.WaitOne();
                 }
 
                 // Closes the socket
-                if (listener.Connected)
+                if (serverSocket.Connected)
                 {
-                    listener.Shutdown(SocketShutdown.Both);
+                    serverSocket.Shutdown(SocketShutdown.Both);
                 }
-                listener.Close();
+                serverSocket.Close();
                 IsRunning = false;
 
             }
@@ -320,10 +353,10 @@ namespace SmallRobots.Ev3ControlLib
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
             TCPMessageState state = (TCPMessageState)ar.AsyncState;
-            Socket handler = state.workSocket;
+            lastCallerClient = state.workSocket;
 
             // Read data from the client socket. 
-            int bytesRead = handler.EndReceive(ar);
+            int bytesRead = lastCallerClient.EndReceive(ar);
 
             if (bytesRead > 0)
             {
@@ -352,16 +385,6 @@ namespace SmallRobots.Ev3ControlLib
                 //    new AsyncCallback(ReadCallback), state);
                 //}
             }
-        }
-
-        private void Send(Socket handler, String data)
-        {
-            // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
-
-            // Begin sending the data to the remote device.
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
         }
 
         private void SendCallback(IAsyncResult ar)
@@ -407,6 +430,39 @@ namespace SmallRobots.Ev3ControlLib
 
             // Joins the server thread
             serverThread.Join();
+        }
+
+        /// <summary>
+        /// Sends the supplied data to the last client that 
+        /// called this server
+        /// </summary>
+        /// <param name="data">Data to send</param>
+        public void Send(string data)
+        {
+            // Convert the string data to byte data using ASCII encoding.
+            byte[] byteData = Encoding.ASCII.GetBytes(data);
+
+            // Begin sending the data to the remote device.
+            lastCallerClient.BeginSend(byteData, 0, byteData.Length, 0,
+                new AsyncCallback(SendCallback), serverSocket);
+        }
+        #endregion
+
+        #region INotifyPropertyChanged interface implementation
+        /// <summary>
+        /// Event raised when a property changes its value
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Raises the PropertyChanged event if a handler is assigned
+        /// </summary>
+        /// <param name="propertyName">Property for which the event must be raised</param>
+        protected void RaisePropertyChanged(string propertyName = "")
+        {
+            // Raises the event if the handler is not null
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return;
         }
         #endregion
     }

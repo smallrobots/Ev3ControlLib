@@ -27,7 +27,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SmallRobots.Ev3ControlLib;
+using System;
+using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace Ev3ControLib_UnitTest
@@ -41,7 +45,7 @@ namespace Ev3ControLib_UnitTest
         [TestInitialize]
         public void ConnectedRobot_UnitTest_Initialization()
         {
-            localAddress = new IPAddress(new byte[4] { 172, 16, 232, 134 });
+            localAddress = new IPAddress(new byte[4] { 192, 168, 1, 170 });
         }
 
         /// <summary>
@@ -54,7 +58,8 @@ namespace Ev3ControLib_UnitTest
             Assert.IsNotNull(robot);
         }
 
-        class SpecialMessage : RobotMessage
+        [Serializable]
+        public class SpecialMessage : RobotMessage
         {
             public int testField;
         }
@@ -113,5 +118,147 @@ namespace Ev3ControLib_UnitTest
             Assert.AreEqual(false, robot.IsServerRunning);
         }
 
+
+        class SpecialRobot : ConnectedRobot<SpecialMessage>
+        {
+            public bool okIHaveReceivedAMessage = false;
+
+            public SpecialRobot(IPAddress theAddress) : base(theAddress) { }
+
+            protected override void ProcessLastReceivedMessage()
+            {
+                base.ProcessLastReceivedMessage();
+                okIHaveReceivedAMessage = true;
+            }
+        }
+
+        /// <summary>
+        /// Starts the server and checks
+        /// Send a message and checks
+        /// Stops the server and checks
+        /// </summary>
+        [TestMethod]
+        public void ConnectedRobot_UnitTest_6()
+        {
+            SpecialRobot robot = new SpecialRobot(theAddress: localAddress);
+            Assert.IsNotNull(robot);
+            Assert.AreEqual(localAddress, robot.IPAddress);
+            Assert.AreEqual(false, robot.IsServerRunning);
+
+            Assert.IsTrue(!robot.okIHaveReceivedAMessage);
+
+            // Starts the server and checks
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
+            robot.Start();
+            Thread.Sleep(100);
+            Assert.AreEqual(true, robot.IsServerRunning);
+
+            // Connects to the server and check
+            Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(remoteEP);
+            Assert.AreEqual(client.Connected, true);
+
+            // Create a message to send
+            RobotMessage sentMessage = new RobotMessage();
+            sentMessage.Sender = Sender.FromClient;
+            string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
+            // Send the message
+            int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
+            Assert.AreNotEqual(0, bytesSent);
+
+            // Checks message received
+            Thread.Sleep(100);
+            Assert.IsTrue(robot.okIHaveReceivedAMessage);
+
+            // Disconnects from the server and check
+            client.Disconnect(false);
+            Assert.AreEqual(client.Connected, false);
+
+            // Stops the server and checks
+            robot.Stop();
+            Thread.Sleep(100);
+            Assert.AreEqual(false, robot.IsServerRunning);
+        }
+
+        class SpecialRobot_2 : ConnectedRobot<SpecialMessage>
+        {
+            public bool okIHaveReceivedAMessage = false;
+
+            public SpecialRobot_2(IPAddress theAddress) : base(theAddress) { }
+
+            protected override void ProcessLastReceivedMessage()
+            {
+                base.ProcessLastReceivedMessage();
+                okIHaveReceivedAMessage = true;
+
+                // Sends a message back
+                SpecialMessage message = new SpecialMessage();
+                message.Sender = Sender.FromRobot;
+                message.testField = 150;
+
+                string encodedMessage = RobotMessage.Serialize(theMessage: message);
+
+                // Send the message
+                Ev3TCPServer.Send(encodedMessage);
+            }
+        }
+
+        /// <summary>
+        /// Starts the server and checks
+        /// Send a message and checks
+        /// The robot answers back with tesfield = 150;
+        /// Stops the server and checks
+        /// </summary>
+        [TestMethod]
+        public void ConnectedRobot_UnitTest_7()
+        {
+            SpecialRobot_2 robot = new SpecialRobot_2(theAddress: localAddress);
+            Assert.IsNotNull(robot);
+            Assert.AreEqual(localAddress, robot.IPAddress);
+            Assert.AreEqual(false, robot.IsServerRunning);
+
+            Assert.AreEqual(false, robot.okIHaveReceivedAMessage);
+
+            // Starts the server and checks
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
+            robot.Start();
+            Thread.Sleep(100);
+            Assert.AreEqual(true, robot.IsServerRunning);
+
+            // Connects to the server and check
+            Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(remoteEP);
+            Assert.AreEqual(client.Connected, true);
+
+            // Create a message to send
+            RobotMessage sentMessage = new RobotMessage();
+            sentMessage.Sender = Sender.FromClient;
+            string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
+
+            // Send the message
+            int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
+            Assert.AreNotEqual(0, bytesSent);
+
+            // Wait for answer
+            byte[] buffer = new byte[4096];
+            client.Receive(buffer);
+            string receivedString = Encoding.ASCII.GetString(buffer);
+            SpecialMessage receivedMessage = (SpecialMessage)RobotMessage.DeSerialize(receivedString, typeof(SpecialMessage));
+            Assert.AreEqual(Sender.FromRobot, receivedMessage.Sender);
+            Assert.AreEqual(150, receivedMessage.testField);
+
+            // Checks message received
+            Thread.Sleep(100);
+            Assert.AreEqual(true, robot.okIHaveReceivedAMessage);
+
+            // Disconnects from the server and check
+            client.Disconnect(false);
+            Assert.AreEqual(client.Connected, false);
+
+            // Stops the server and checks
+            robot.Stop();
+            Thread.Sleep(100);
+            Assert.AreEqual(false, robot.IsServerRunning);
+        }
     }
 }
