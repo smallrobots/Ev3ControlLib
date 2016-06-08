@@ -53,6 +53,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ConnectedRobot_UnitTest.cs" />
     <Compile Include="Ev3TCPServer_UnitTest.cs" />
     <Compile Include="PIDController_UnitTest.cs" />
     <Compile Include="TaskScheduler_UnitTest.cs" />

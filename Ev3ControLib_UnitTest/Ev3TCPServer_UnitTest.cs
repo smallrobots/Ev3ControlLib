@@ -37,6 +37,15 @@ namespace Ev3ControLib_UnitTest
     [TestClass]
     public partial class Ev3TCPServer_UnitTest
     {
+        // Default Ethernet Address for testing
+        IPAddress localAddress;
+
+        [TestInitialize]
+        public void Ev3TCPServer_UnitTest_Initialization()
+        {
+            localAddress = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+        }
+
         /// <summary>
         /// Default constructor test
         /// </summary>
@@ -108,8 +117,8 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_4()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
+            //IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
             
             // Starts the server and checks
             server.Start();
@@ -131,9 +140,9 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_5()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
-            IPEndPoint remoteEP = new IPEndPoint(ipTest, 11000);
+            // IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
 
             // Starts the server and checks
             server.Start();
@@ -272,9 +281,9 @@ namespace Ev3ControLib_UnitTest
         public void Ev3TCPServer_UnitTest_12()
         {
             // Server Ip Address and server initialization
-            IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
-            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: ipTest);
-            IPEndPoint remoteEP = new IPEndPoint(ipTest, 11000);
+            // IPAddress ipTest = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
 
             // Starts the server and checks
             server.Start();
@@ -290,7 +299,6 @@ namespace Ev3ControLib_UnitTest
             RobotMessage sentMessage = new RobotMessage();
             sentMessage.Sender = Sender.FromClient;
             string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
-
             // Send the message
             int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
             Assert.AreNotEqual(0, bytesSent);
@@ -300,6 +308,61 @@ namespace Ev3ControLib_UnitTest
             Assert.IsNotNull(server.LastMessage);
             Assert.AreNotEqual(string.Empty, server.LastMessage);
             Assert.AreEqual(sentMessage.Sender, RobotMessage.DeSerialize(server.LastMessage, typeof(RobotMessage)).Sender);
+
+            // Disconnects from the server and check
+            client.Disconnect(false);
+            Assert.AreEqual(client.Connected, false);
+
+            // Stops the server and checks
+            server.Stop();
+            Thread.Sleep(100);
+            Assert.AreEqual(server.IsRunning, false);
+        }
+
+        /// <summary>
+        /// Starts and stops the Server and connects to it
+        /// Then sends a message and checks
+        /// Checks also the Last Message Changed event
+        /// </summary>
+        [TestMethod]
+        public void Ev3TCPServer_UnitTest_13()
+        {
+            // Server Ip Address and server initialization
+            Ev3TCPServer server = new Ev3TCPServer(withIPAddress: localAddress);
+            IPEndPoint remoteEP = new IPEndPoint(localAddress, 11000);
+
+            bool propertyChangedEventFired = false;
+            server.PropertyChanged += (object sender, System.ComponentModel.PropertyChangedEventArgs e) =>
+                                     {
+                                         propertyChangedEventFired = true;
+                                     };
+
+            // Starts the server and checks
+            server.Start();
+            Thread.Sleep(100);
+            Assert.AreEqual(server.IsRunning, true);
+
+            // Connects to the server and check
+            Socket client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client.Connect(remoteEP);
+            Assert.AreEqual(client.Connected, true);
+
+            // Create a message to send
+            RobotMessage sentMessage = new RobotMessage();
+            sentMessage.Sender = Sender.FromClient;
+            string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
+            // Send the message
+            int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
+            Assert.AreNotEqual(0, bytesSent);
+
+            // Checks message received
+            Thread.Sleep(100);
+            Assert.IsNotNull(server.LastMessage);
+            Assert.AreNotEqual(string.Empty, server.LastMessage);
+            Assert.AreEqual(sentMessage.Sender, RobotMessage.DeSerialize(server.LastMessage, typeof(RobotMessage)).Sender);
+
+            // Checks event fired
+            Assert.AreEqual(true, propertyChangedEventFired);
 
             // Disconnects from the server and check
             client.Disconnect(false);
