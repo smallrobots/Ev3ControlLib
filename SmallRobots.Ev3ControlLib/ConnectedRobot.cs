@@ -26,6 +26,7 @@
 
 using System;
 using System.Net;
+using System.Text;
 
 namespace SmallRobots.Ev3ControlLib
 {
@@ -167,8 +168,15 @@ namespace SmallRobots.Ev3ControlLib
         /// </summary>
         protected virtual void ProcessLastReceivedMessage()
         {
-
+            // AnswerBack();
         }
+
+        //protected virtual void AnswerBack()
+        //{
+        //    RobotMessage message = new RobotMessage();
+        //    message.Sender = Sender.FromRobot;
+        //    Ev3TCPServer.Send(RobotMessage.Serialize(message));
+        //}
         #endregion
     }
 }

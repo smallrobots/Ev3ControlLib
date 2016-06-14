@@ -48,7 +48,7 @@ namespace SmallRobots.Ev3ControlLib
     /// <summary>
     /// Message sent between the robot and its client
     /// </summary>
-    [Serializable]
+    [Serializable, XmlRoot("RobotMessage")]
     public class RobotMessage
     {
         #region Fields
@@ -114,12 +114,20 @@ namespace SmallRobots.Ev3ControlLib
         /// <returns></returns>
         public static RobotMessage DeSerialize(string data, Type type)
         {
+            // var serializer = new XmlSerializer(type, new XmlRootAttribute("RobotMessage"));
             var serializer = new XmlSerializer(type);
             RobotMessage result;
 
-            using (TextReader reader = new StringReader(data))
+            try
             {
-                result = (RobotMessage)serializer.Deserialize(reader);
+                using (TextReader reader = new StringReader(data))
+                {
+                    result = (RobotMessage)serializer.Deserialize(reader);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                result = null;
             }
 
             return result;
@@ -335,15 +343,22 @@ namespace SmallRobots.Ev3ControlLib
             // Signal the main thread to continue.
             allDone.Set();
 
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
+            try
+            {
+                // Get the socket that handles the client request.
+                Socket listener = (Socket)ar.AsyncState;
+                Socket handler = listener.EndAccept(ar);
 
-            // Create the state object.
-            TCPMessageState state = new TCPMessageState();
-            state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, TCPMessageState.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
+                // Create the state object.
+                TCPMessageState state = new TCPMessageState();
+                state.workSocket = handler;
+                handler.BeginReceive(state.buffer, 0, TCPMessageState.BufferSize, 0,
+                    new AsyncCallback(ReadCallback), state);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Do Nothing
+            }
         }
 
         public void ReadCallback(IAsyncResult ar)
@@ -361,7 +376,7 @@ namespace SmallRobots.Ev3ControlLib
             if (bytesRead > 0)
             {
                 // There  might be more data, so store the data received so far.
-                state.sb.Append(Encoding.ASCII.GetString(
+                state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
 
                 // Check for end-of-file tag. If it is not there, read 
@@ -439,8 +454,8 @@ namespace SmallRobots.Ev3ControlLib
         /// <param name="data">Data to send</param>
         public void Send(string data)
         {
-            // Convert the string data to byte data using ASCII encoding.
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            // Convert the string data to byte data using UTF8 encoding.
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
 
             // Begin sending the data to the remote device.
             lastCallerClient.BeginSend(byteData, 0, byteData.Length, 0,

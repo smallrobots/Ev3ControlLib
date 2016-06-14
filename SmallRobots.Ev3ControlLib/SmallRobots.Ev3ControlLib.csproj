@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectedRobot.cs" />
+    <Compile Include="ConnectedRobotClient.cs" />
     <Compile Include="Ev3TCPServer.cs" />
     <Compile Include="MainMenuItem.cs" />
     <Compile Include="PIDController.cs" />

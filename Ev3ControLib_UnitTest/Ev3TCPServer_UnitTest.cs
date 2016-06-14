@@ -43,7 +43,8 @@ namespace Ev3ControLib_UnitTest
         [TestInitialize]
         public void Ev3TCPServer_UnitTest_Initialization()
         {
-            localAddress = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            // localAddress = new IPAddress(new byte[4] { 192, 168, 1, 170 });
+            localAddress = new IPAddress(new byte[4] { 172, 16, 232, 134 });
         }
 
         /// <summary>
@@ -122,14 +123,14 @@ namespace Ev3ControLib_UnitTest
             
             // Starts the server and checks
             server.Start();
+            Thread.Sleep(200);
 
-            Thread.Sleep(100);
             Assert.AreEqual(server.IsRunning, true);
 
             // Stops the server and checks
             server.Stop();
+            Thread.Sleep(200);
 
-            Thread.Sleep(100);
             Assert.AreEqual(server.IsRunning, false);
         }
 
@@ -146,7 +147,7 @@ namespace Ev3ControLib_UnitTest
 
             // Starts the server and checks
             server.Start();
-            Thread.Sleep(100);
+            Thread.Sleep(300);
             Assert.AreEqual(server.IsRunning, true);
 
             // Connects to the server and check
@@ -287,7 +288,7 @@ namespace Ev3ControLib_UnitTest
 
             // Starts the server and checks
             server.Start();
-            Thread.Sleep(100);
+            Thread.Sleep(300);
             Assert.AreEqual(server.IsRunning, true);
 
             // Connects to the server and check
@@ -300,7 +301,7 @@ namespace Ev3ControLib_UnitTest
             sentMessage.Sender = Sender.FromClient;
             string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
             // Send the message
-            int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
+            int bytesSent = client.Send(Encoding.UTF8.GetBytes(encodedMessage));
             Assert.AreNotEqual(0, bytesSent);
 
             // Checks message received
@@ -339,7 +340,7 @@ namespace Ev3ControLib_UnitTest
 
             // Starts the server and checks
             server.Start();
-            Thread.Sleep(100);
+            Thread.Sleep(200);
             Assert.AreEqual(server.IsRunning, true);
 
             // Connects to the server and check
@@ -352,7 +353,7 @@ namespace Ev3ControLib_UnitTest
             sentMessage.Sender = Sender.FromClient;
             string encodedMessage = RobotMessage.Serialize(theMessage: sentMessage);
             // Send the message
-            int bytesSent = client.Send(Encoding.ASCII.GetBytes(encodedMessage));
+            int bytesSent = client.Send(Encoding.UTF8.GetBytes(encodedMessage));
             Assert.AreNotEqual(0, bytesSent);
 
             // Checks message received
